@@ -200,7 +200,7 @@ JSON.stringify({
     height: img.naturalHeight,
     // Include parent info to detect layered compositions
     parentClasses: img.parentElement?.className,
-    siblings: img.parentElement ? [...img.parentElement.querySelectorAll('img')].length : 0,
+    siblings: img.parentElement ? [...img.parentElement.children].filter(el => el.tagName === 'IMG').length : 0,
     position: getComputedStyle(img).position,
     zIndex: getComputedStyle(img).zIndex
   })),
@@ -219,7 +219,7 @@ JSON.stringify({
     element: el.tagName + '.' + el.className?.split(' ')[0]
   })),
   svgCount: document.querySelectorAll('svg').length,
-  fonts: [...new Set([...document.querySelectorAll('*')].slice(0, 200).map(el => getComputedStyle(el).fontFamily))],
+  fonts: [...new Set([...document.querySelectorAll('*')].map(el => getComputedStyle(el).fontFamily))],
   favicons: [...document.querySelectorAll('link[rel*="icon"]')].map(l => ({ href: l.href, sizes: l.sizes?.toString() }))
 });
 ```
@@ -262,20 +262,20 @@ For each section, use browser MCP to extract everything:
   function extractStyles(element) {
     const cs = getComputedStyle(element);
     const styles = {};
-    props.forEach(p => { const v = cs[p]; if (v && v !== 'none' && v !== 'normal' && v !== 'auto' && v !== '0px' && v !== 'rgba(0, 0, 0, 0)') styles[p] = v; });
+    props.forEach(p => { const v = cs[p]; if (v && v !== 'none' && v !== 'normal' && v !== 'auto' && v !== 'rgba(0, 0, 0, 0)') styles[p] = v; });
     return styles;
   }
   function walk(element, depth) {
-    if (depth > 4) return null;
+    if (depth > 10) return null;
     const children = [...element.children];
     return {
       tag: element.tagName.toLowerCase(),
       classes: element.className?.toString().split(' ').slice(0, 5).join(' '),
-      text: element.childNodes.length === 1 && element.childNodes[0].nodeType === 3 ? element.textContent.trim().slice(0, 200) : null,
+      text: [...element.childNodes].filter(n => n.nodeType === 3).map(n => n.textContent.trim()).filter(Boolean).join(' ') || null,
       styles: extractStyles(element),
       images: element.tagName === 'IMG' ? { src: element.src, alt: element.alt, naturalWidth: element.naturalWidth, naturalHeight: element.naturalHeight } : null,
       childCount: children.length,
-      children: children.slice(0, 20).map(c => walk(c, depth + 1)).filter(Boolean)
+      children: children.map(c => walk(c, depth + 1)).filter(Boolean)
     };
   }
   return JSON.stringify(walk(el, 0), null, 2);
