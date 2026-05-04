@@ -17,6 +17,12 @@ A demonstration of two distinct skill patterns via the **Command → Agent → S
 
 Two skill patterns: agent skills (preloaded via `skills:` field) vs skills (invoked via `Skill` tool). See `orchestration-workflow/orchestration-workflow.md` for the complete flow diagram.
 
+### Clone Website Skill
+Reverse-engineers any website into a pixel-perfect Next.js clone via a multi-phase pipeline:
+- `clone-website` skill (`.claude/skills/clone-website/SKILL.md`): Invoked with `/clone-website <url>` — runs reconnaissance, foundation build, parallel component extraction + spec writing + builder dispatch, assembly, and visual QA diff
+- Requires browser MCP (Chrome, Playwright, Browserbase, or Puppeteer) and a Next.js + shadcn/ui + Tailwind v4 scaffold to build into
+- Source: [ai-website-cloner-template](https://github.com/JCodesMore/ai-website-cloner-template)
+
 ### Skill Definition Structure
 Skills in `.claude/skills/<name>/SKILL.md` use YAML frontmatter:
 - `name`: Display name and `/slash-command` (defaults to directory name)
